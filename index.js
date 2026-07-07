@@ -82,37 +82,81 @@ function renderApplication(state) {
             card.cardImage = (data.image_uris) ? data.image_uris.border_crop : "";
           }
 
-          completedRequests++;
-          let percentageComplete = (completedRequests / totalRequests) * 100;
-
-          $(".progress-bar").css("width", `${percentageComplete}%`).attr("aria-valuenow", `${percentageComplete}`);
-
           card.needsRerender = true;
 
           if (card.cardImage !== "") {
+            let tokensList = card.allParts.filter(n => n.component == "token") 
             // Skip cards without tokens
-            if (card.allParts.some(n => n.component == "token")) {
+            if (tokensList.length > 0) {
               //push the cards into the deckList:
               for (let j = 0; j < queryList[i].quantity; j++) {
                 const myTempCard = $.extend(true, {}, card);
                 STATE.deckList.push(myTempCard);
               }
+              // Add the tokens to deck list as well
+              tokensList.forEach(token => {
+                const query = {};
+                query.quantity = queryList[i].quantity;
+                query.layout = "normal";
+                query.queryEndpoint = "uri";
+                query.query = token.uri;
+                setTimeout(getDataFromScryFall(query, function (data) {
+                  const result = {};
+                  result.name = data.name;
+                  result.set = data.set_name;
+                  result.displayOrder = i;
+                  result.alternateImages = null;
+                  result.editMode = false;
+                  result.printsUri = data.prints_search_uri;
+                  result.layout = queryList[i].layout;
+                  result.allParts = data.all_parts;
+                  result.needsRerender = true;
+
+                  //update card images:
+                  if (data.layout == 'transform' || data.layout == 'modal_dfc') {
+                    result.cardImage = (data.card_faces[0].image_uris) ? data.card_faces[0].image_uris.border_crop : "";
+                    result.cardImage2 = (data.card_faces[1].image_uris) ? data.card_faces[1].image_uris.border_crop : "";
+                  } else {
+                    result.cardImage = (data.image_uris) ? data.image_uris.border_crop : "";
+                  }
+
+                  for (let j = 0; j < queryList[i].quantity; j++) {
+                    const myTempCard = $.extend(true, {}, result);
+                    STATE.deckList.push(myTempCard);
+                  }
+                  // update progress
+                  completedRequests++;
+                  let percentageComplete = (completedRequests / totalRequests) * 100;
+                  $(".progress-bar").css("width", `${percentageComplete}%`).attr("aria-valuenow", `${percentageComplete}`);
+                  if (completedRequests === queryList.length) {
+                    STATE.deckList = STATE.deckList.sort(function (card1, card2) {
+                      return card1.displayOrder - card2.displayOrder;
+                    });
+
+                    renderApplication(STATE);
+                  }
+                }));
+              });
             }
           } else {
+            // update progress
+            completedRequests++;
+            let percentageComplete = (completedRequests / totalRequests) * 100;
+            $(".progress-bar").css("width", `${percentageComplete}%`).attr("aria-valuenow", `${percentageComplete}`);
+
             $(".js-results").prepend(`<div class="alert alert-danger alert-dismissible fade show col-12" role="alert">
               "${card.name}" could not be found. Try editing your list.
               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>`);
-          }
+            if (completedRequests === queryList.length) {
+              STATE.deckList = STATE.deckList.sort(function (card1, card2) {
+                return card1.displayOrder - card2.displayOrder;
+              });
 
-          if (completedRequests === queryList.length) {
-            STATE.deckList = STATE.deckList.sort(function (card1, card2) {
-              return card1.displayOrder - card2.displayOrder;
-            });
-
-            renderApplication(STATE);
+              renderApplication(STATE);
+            }
           }
         }), 50);
       }
