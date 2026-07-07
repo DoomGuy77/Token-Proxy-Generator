@@ -54,7 +54,7 @@ function renderApplication(state) {
       for(let i=0; i < queryList.length; i++) {
         //query ScryFall for CURRENT card
         setTimeout(getDataFromScryFall(queryList[i], function (data) {
-          const card = {}
+          const card = {};
 
           card.name = data.name;
           card.set = data.set_name;
@@ -62,7 +62,8 @@ function renderApplication(state) {
           card.alternateImages = null;
           card.editMode = false;
           card.printsUri = data.prints_search_uri;
-          card.layout = queryList[i].layout
+          card.layout = queryList[i].layout;
+          card.allParts = data.all_parts;
 
           //update card images:
           if (data.layout == 'transform' || data.layout == 'modal_dfc') {
@@ -89,10 +90,13 @@ function renderApplication(state) {
           card.needsRerender = true;
 
           if (card.cardImage !== "") {
-            //push the cards into the deckList:
-            for (let j = 0; j < queryList[i].quantity; j++) {
-              const myTempCard = $.extend(true, {}, card);
-              STATE.deckList.push(myTempCard);
+            // Skip cards without tokens
+            if (card.allParts.some(n => n.component == "token")) {
+              //push the cards into the deckList:
+              for (let j = 0; j < queryList[i].quantity; j++) {
+                const myTempCard = $.extend(true, {}, card);
+                STATE.deckList.push(myTempCard);
+              }
             }
           } else {
             $(".js-results").prepend(`<div class="alert alert-danger alert-dismissible fade show col-12" role="alert">
