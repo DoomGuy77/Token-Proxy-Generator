@@ -6,6 +6,12 @@ function getDataFromScryFall(card, callback) {
     ).fail(function() {
       callback({name: card.query})
     })
+  } else if (card.queryEndpoint == 'uri') {
+    $.get(card.query,
+      callback
+    ).fail(function() {
+      callback({name: card.query})
+    })
   } else {
     $.getJSON(SCRYFALL_SEARCH_URL + card.queryEndpoint,
       { fuzzy: card.query },
