@@ -57,7 +57,10 @@ function renderApplication(state) {
           const card = processScryfallData(data, queryList, i);
 
           if (card.cardImage !== "") {
-            let tokensList = card.allParts.filter(n => n.component == "token");
+            let tokensList = [];
+            if (card.allParts) {
+              tokensList = card.allParts.filter(n => n.component == "token");
+            }
             // Skip cards without tokens
             if (tokensList.length > 0) {
               //push the cards into the deckList:
