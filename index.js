@@ -54,38 +54,10 @@ function renderApplication(state) {
       for(let i=0; i < queryList.length; i++) {
         //query ScryFall for CURRENT card
         setTimeout(getDataFromScryFall(queryList[i], function (data) {
-          const card = {};
-
-          card.name = data.name;
-          card.set = data.set_name;
-          card.displayOrder = i;
-          card.alternateImages = null;
-          card.editMode = false;
-          card.printsUri = data.prints_search_uri;
-          card.layout = queryList[i].layout;
-          card.allParts = data.all_parts;
-
-          //update card images:
-          if (data.layout == 'transform' || data.layout == 'modal_dfc') {
-            card.cardImage = (data.card_faces[0].image_uris) ? data.card_faces[0].image_uris.border_crop : "";
-            card.cardImage2 = (data.card_faces[1].image_uris) ? data.card_faces[1].image_uris.border_crop : "";
-          } else {
-            if(card.layout === 'checklist') {
-              card.layout = 'normal';
-              $(".js-results").prepend(`<div class="alert alert-danger alert-dismissible fade show col-12" role="alert">
-              "${card.name}" cannot be made into a checklist card. Generating standard card instead.
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>`);
-            }
-            card.cardImage = (data.image_uris) ? data.image_uris.border_crop : "";
-          }
-
-          card.needsRerender = true;
+          const card = processScryfallData(data, queryList, i);
 
           if (card.cardImage !== "") {
-            let tokensList = card.allParts.filter(n => n.component == "token") 
+            let tokensList = card.allParts.filter(n => n.component == "token");
             // Skip cards without tokens
             if (tokensList.length > 0) {
               //push the cards into the deckList:
@@ -101,24 +73,7 @@ function renderApplication(state) {
                 query.queryEndpoint = "uri";
                 query.query = token.uri;
                 setTimeout(getDataFromScryFall(query, function (data) {
-                  const result = {};
-                  result.name = data.name;
-                  result.set = data.set_name;
-                  result.displayOrder = i;
-                  result.alternateImages = null;
-                  result.editMode = false;
-                  result.printsUri = data.prints_search_uri;
-                  result.layout = queryList[i].layout;
-                  result.allParts = data.all_parts;
-                  result.needsRerender = true;
-
-                  //update card images:
-                  if (data.layout == 'transform' || data.layout == 'modal_dfc') {
-                    result.cardImage = (data.card_faces[0].image_uris) ? data.card_faces[0].image_uris.border_crop : "";
-                    result.cardImage2 = (data.card_faces[1].image_uris) ? data.card_faces[1].image_uris.border_crop : "";
-                  } else {
-                    result.cardImage = (data.image_uris) ? data.image_uris.border_crop : "";
-                  }
+                  const result = processScryfallData(data, queryList, i);
 
                   for (let j = 0; j < queryList[i].quantity; j++) {
                     const myTempCard = $.extend(true, {}, result);
