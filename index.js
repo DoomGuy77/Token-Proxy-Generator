@@ -65,7 +65,7 @@ function renderApplication(state) {
             // Skip cards without tokens
             if (tokensList.length > 0) {
               //push the cards into the deckList:
-              for (let j = 0; j < queryList[i].quantity; j++) {
+              for (let j = 0; j < queryList[i].quantity * tokensList.length; j++) {
                 const myTempCard = $.extend(true, {}, card);
                 STATE.deckList.push(myTempCard);
               }
