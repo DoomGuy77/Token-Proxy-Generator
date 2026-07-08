@@ -69,6 +69,7 @@ function renderApplication(state) {
                 STATE.deckList.push(myTempCard);
               }
               // Add the tokens to deck list as well
+              let completedTokens = 0;
               tokensList.forEach(token => {
                 const query = {};
                 query.quantity = queryList[i].quantity;
@@ -83,24 +84,21 @@ function renderApplication(state) {
                     STATE.deckList.push(myTempCard);
                   }
                   // update progress
-                  completedRequests++;
-                  let percentageComplete = (completedRequests / totalRequests) * 100;
-                  $(".progress-bar").css("width", `${percentageComplete}%`).attr("aria-valuenow", `${percentageComplete}`);
-                  if (completedRequests === queryList.length) {
-                    STATE.deckList = STATE.deckList.sort(function (card1, card2) {
-                      return card1.displayOrder - card2.displayOrder;
-                    });
-
-                    renderApplication(STATE);
+                  completedTokens++;
+                  if (completedTokens == tokensList.length) {
+                    completedRequests++;
+                    updateProgress(completedRequests, totalRequests);
                   }
                 }));
               });
+            } else {
+              completedRequests++;
+              updateProgress(completedRequests, totalRequests);
             }
           } else {
             // update progress
             completedRequests++;
-            let percentageComplete = (completedRequests / totalRequests) * 100;
-            $(".progress-bar").css("width", `${percentageComplete}%`).attr("aria-valuenow", `${percentageComplete}`);
+            updateProgress(completedRequests, totalRequests);
 
             $(".js-results").prepend(`<div class="alert alert-danger alert-dismissible fade show col-12" role="alert">
               "${card.name}" could not be found. Try editing your list.
@@ -477,3 +475,15 @@ function addProgressBar() {
 $(function() {
   renderApplication(STATE);
 });
+
+function updateProgress(completedRequests, totalRequests) {
+  let percentageComplete = (completedRequests / totalRequests) * 100;
+  $(".progress-bar").css("width", `${percentageComplete}%`).attr("aria-valuenow", `${percentageComplete}`);
+  if (completedRequests === totalRequests) {
+    STATE.deckList = STATE.deckList.sort(function (card1, card2) {
+      return card1.displayOrder - card2.displayOrder;
+    });
+
+    renderApplication(STATE);
+  }
+}
