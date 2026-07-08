@@ -109,10 +109,7 @@ function renderApplication(state) {
               </button>
             </div>`);
             if (completedRequests === queryList.length) {
-              STATE.deckList = STATE.deckList.sort(function (card1, card2) {
-                return card1.displayOrder - card2.displayOrder;
-              });
-
+              sortDecklistForView();
               renderApplication(STATE);
             }
           }
@@ -152,6 +149,7 @@ function renderApplication(state) {
 ////////////////////////////////////////////////////////
 
 function buildSpoiler(deckList) {
+  $(`.card-div`).remove();
   
   for(let i = 0; i < deckList.length; i++) {
     
@@ -482,10 +480,41 @@ function updateProgress(completedRequests, totalRequests) {
   let percentageComplete = (completedRequests / totalRequests) * 100;
   $(".progress-bar").css("width", `${percentageComplete}%`).attr("aria-valuenow", `${percentageComplete}`);
   if (completedRequests === totalRequests) {
-    STATE.deckList = STATE.deckList.sort(function (card1, card2) {
-      return card1.displayOrder - card2.displayOrder;
-    });
-
+    sortDecklistForView();
     renderApplication(STATE);
   }
+}
+
+function sortDecklistForView() {
+  STATE.deckList = STATE.deckList.sort(function (card1, card2) {
+    return card1.displayOrder - card2.displayOrder;
+  });
+}
+
+function sortDecklistForPrint() {
+  sortDecklistForView();
+  cardList = [];
+  tokenList = [];
+  for (let i = 0; i < STATE.deckList.length; i++) {
+    if (STATE.deckList[i].type == "card") {
+      cardList.push(STATE.deckList[i]);
+    } else {
+      tokenList.push(STATE.deckList[i]);
+    }
+  }
+  STATE.deckList = [];
+  while (cardList.length > 0) {
+    STATE.deckList = STATE.deckList.concat(cardList.splice(0,9));
+    for (let i = 0; i < 3; i++) {
+      STATE.deckList = STATE.deckList.concat(tokenList.splice(0,3).reverse());
+    }
+  }
+}
+
+function rerenderForPrint() {
+  sortDecklistForPrint();
+  for (let i = 0; i < STATE.deckList.length; i++) {
+    STATE.deckList[i].needsRerender = true;
+  }
+  renderApplication(STATE);
 }
