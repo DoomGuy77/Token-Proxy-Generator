@@ -488,6 +488,7 @@ function updateProgress(completedRequests, totalRequests) {
 }
 
 function sortDecklistForView() {
+  STATE.deckList = STATE.deckList.filter(x => x.type != "padding");
   STATE.deckList = STATE.deckList.sort(function (card1, card2) {
     return card1.displayOrder - card2.displayOrder;
   });
@@ -504,6 +505,18 @@ function sortDecklistForPrint() {
       tokenList.push(STATE.deckList[i]);
     }
   }
+  // Add some padding cards to get remaining tokens to the next page
+  const padcard = {};
+  padcard.type = "padding";
+  padcard.needsRerender = "true";
+  padcard.layout = "normal";
+  padcard.cardImage = "padding-card.png";
+  const paddingNeeded = (9 - (cardList.length % 9)) % 9;
+  for (let i = 0; i < paddingNeeded % 9; i++) {
+    tokenList.push($.extend(true, {}, padcard));
+    cardList.push($.extend(true, {}, padcard));
+  }
+  
   STATE.deckList = [];
   while (cardList.length > 0) {
     STATE.deckList = STATE.deckList.concat(cardList.splice(0,9));
