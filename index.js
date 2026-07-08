@@ -136,7 +136,7 @@ function renderApplication(state) {
     
     $(".progress-container").remove();
     
-    buildSpoiler(STATE.deckList);
+    buildSpoiler(STATE.deckList, false);
   
   } else {
     throw new Error("Invalid Mode");
@@ -148,8 +148,10 @@ function renderApplication(state) {
 //  Utility Functions:
 ////////////////////////////////////////////////////////
 
-function buildSpoiler(deckList) {
-  $(`.card-div`).remove();
+function buildSpoiler(deckList, rerender) {
+  if (rerender) {
+    $(`.card-div`).remove();
+  }
   
   for(let i = 0; i < deckList.length; i++) {
     
@@ -511,10 +513,3 @@ function sortDecklistForPrint() {
   }
 }
 
-function rerenderForPrint() {
-  sortDecklistForPrint();
-  for (let i = 0; i < STATE.deckList.length; i++) {
-    STATE.deckList[i].needsRerender = true;
-  }
-  renderApplication(STATE);
-}
