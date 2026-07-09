@@ -163,24 +163,7 @@ function buildSpoiler(deckList, rerender) {
     
     // if there are no matching cardDivs this is a new card, so let's create one
     if(cardDivs.length === 0) {
-      
-      // cardDiv1 = $();
-      
-      // make 2 cardDivs for a 'normal' DFC
-      if(card.cardImage2 && card.layout !== 'checklist') {
-        $(".js-results").append(`
-        <div class="card-div col-6 col-sm-4 col-md-3 col-lg-2" data-card="${card.name}-${i}">
-          <div class="card-overlay d-print-none">
-            <button class="edit-button btn btn-outline-light btn-sm">Edit</button>
-          </div>
-          <img class="normal">
-        </div>
-
-        <div class="card-div col-6 col-sm-4 col-md-3 col-lg-2" data-card="${card.name}-${i}">
-          <img>
-        </div>`);
-        // else make a single cardDiv with checklist style img elements
-      } else if(card.cardImage2 && card.layout === 'checklist') {
+      if(card.cardImage2 && card.layout === 'checklist') {
         // Need to add an img.normal for print-sizing reasons...
         $(".js-results").append(`
         <div class="card-div checklist col-6 col-sm-4 col-md-3 col-lg-2" data-card="${card.name}-${i}">
@@ -233,9 +216,6 @@ function buildSpoiler(deckList, rerender) {
       // add normal card face images
       if(card.layout === 'normal') {
         cardDiv1.find('img').replaceWith(`<img class="normal" src="${card.cardImage}" alt="${card.name}">`)
-        if(card.cardImage2) {
-          cardDiv2.find('img').replaceWith(`<img class="normal" src="${card.cardImage2}" alt="${card.name}">`);
-        }
       }
 
       //add checklist card face images
