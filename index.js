@@ -366,7 +366,11 @@ function generateQueryList(userInputArr) {
     if(!query.queryEndpoint) {
       query.queryEndpoint = 'named'
     }
-    query.query = currentItem.trim().toLowerCase();
+    if (query.queryEndpoint == "code") {
+      query.query = currentItem.trim();
+    } else {
+      query.query = currentItem.trim().toLowerCase();
+    }
     console.log(`query #${i} before being pushed is: `, query)
     queryList.push(query);
     console.log(`queryList #${i} is: `, queryList[i])
