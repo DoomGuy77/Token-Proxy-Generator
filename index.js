@@ -54,8 +54,9 @@ function renderApplication(state) {
       for(let i=0; i < queryList.length; i++) {
         //query ScryFall for CURRENT card
         setTimeout(getDataFromScryFall(queryList[i], function (data) {
-          const card = processScryfallData(data, queryList, i);
+          const card = processScryfallData(data, i);
           card.type = "card";
+          card.layout = queryList[i].layout;
 
           if (card.cardImage !== "") {
             let tokensList = [];
@@ -78,8 +79,9 @@ function renderApplication(state) {
                 query.queryEndpoint = "uri";
                 query.query = token.uri;
                 setTimeout(getDataFromScryFall(query, function (data) {
-                  const result = processScryfallData(data, queryList, i);
+                  const result = processScryfallData(data, i);
                   result.type = "token";
+                  result.layout = "normal";
 
                   for (let j = 0; j < queryList[i].quantity; j++) {
                     const myTempCard = $.extend(true, {}, result);

@@ -22,16 +22,15 @@ function getDataFromScryFall(card, callback) {
   }
 }
 
-function processScryfallData(data, queryList, i) {
+function processScryfallData(data, displayOrder) {
   const card = {};
 
   card.name = data.name;
   card.set = data.set_name;
-  card.displayOrder = i;
+  card.displayOrder = displayOrder;
   card.alternateImages = null;
   card.editMode = false;
   card.printsUri = data.prints_search_uri;
-  card.layout = queryList[i].layout;
   card.allParts = data.all_parts;
 
   //update card images:
