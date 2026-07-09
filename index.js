@@ -53,7 +53,8 @@ function renderApplication(state) {
 
       for(let i=0; i < queryList.length; i++) {
         //query ScryFall for CURRENT card
-        setTimeout(getDataFromScryFall(queryList[i], function (data) {
+        const timeout = queryList[i].queryEndpoint == "named" ? i * 500 : i * 100;
+        setTimeout(function () {getDataFromScryFall(queryList[i], function (data) {
           const card = processScryfallData(data, i);
           card.type = "card";
           card.layout = queryList[i].layout;
@@ -115,7 +116,7 @@ function renderApplication(state) {
               renderApplication(STATE);
             }
           }
-        }), 50);
+        })}, timeout);
       }
         
       STATE.mode = MODES.REVIEW;
