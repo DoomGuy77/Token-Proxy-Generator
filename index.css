@@ -181,4 +181,9 @@ img.normal {
   .checklist-back {
     border-radius: 0 7px 7px 0;
   }
+
+  .js-queryList.drag-over {
+    border: 2px dashed #007bff;
+    background-color: #f0f8ff;
+  }
 }
