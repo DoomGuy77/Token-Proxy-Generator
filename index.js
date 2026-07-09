@@ -336,7 +336,7 @@ function generateQueryList(userInputArr) {
     //check quantity and store in query object:
     query.quantity = checkQuantity(currentItem)
     //remove quantity from currentItem
-    currentItem = currentItem.replace(/^([0-9]+)/g, '').trim();
+    currentItem = currentItem.replace(/^([0-9]+\s)/g, '').trim();
     //check for flags:
 
     //check for 'checklist' flag
@@ -392,6 +392,9 @@ function generateQueryList(userInputArr) {
 }
 
 function checkQuantity(userQuery) {
+  if (!/^\d+\s/.test(userQuery)) {
+    return 1;
+  }
   userQuery = parseInt(userQuery);
   if(isNaN(userQuery)) {
     return 1;
