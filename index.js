@@ -52,8 +52,8 @@ function renderApplication(state) {
       STATE.deckList = [];
 
       for(let i=0; i < queryList.length; i++) {
-        //query ScryFall for CURRENT card
-        const timeout = queryList[i].queryEndpoint == "named" ? i * 500 : i * 100;
+        // Rate limiting. Leave extra time for tokens.
+        const timeout = queryList[i].queryEndpoint == "named" ? i * 600 : i * 200;
         setTimeout(function () {getDataFromScryFall(queryList[i], function (data) {
           const card = processScryfallData(data, i);
           card.type = "card";
@@ -73,13 +73,15 @@ function renderApplication(state) {
               }
               // Add the tokens to deck list as well
               let completedTokens = 0;
-              tokensList.forEach(token => {
+              for (let j = 0; j < tokensList.length; j++) {
+                token = tokensList[j];
                 const query = {};
                 query.quantity = queryList[i].quantity;
                 query.layout = "normal";
                 query.queryEndpoint = "uri";
                 query.query = token.uri;
-                setTimeout(getDataFromScryFall(query, function (data) {
+                const timeout = j * 200;
+                setTimeout(function () {getDataFromScryFall(query, function (data) {
                   const result = processScryfallData(data, i);
                   result.type = "token";
                   result.layout = "normal";
@@ -94,8 +96,8 @@ function renderApplication(state) {
                     completedRequests++;
                     updateProgress(completedRequests, totalRequests);
                   }
-                }));
-              });
+                })}, timeout);
+              }
             } else {
               completedRequests++;
               updateProgress(completedRequests, totalRequests);
